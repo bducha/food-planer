@@ -20,45 +20,24 @@ class Ingredient
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $name;
-
-    /**
      * @ORM\Column(type="float")
      */
     private $quantity;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="ingredients")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $unit;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Meal::class, mappedBy="ingredients")
-     */
-    private $meals;
+    private $product;
 
     public function __construct()
     {
-        $this->meals = new ArrayCollection();
+
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     public function getQuantity(): ?float
@@ -73,41 +52,14 @@ class Ingredient
         return $this;
     }
 
-    public function getUnit(): ?string
+    public function getProduct(): ?Product
     {
-        return $this->unit;
+        return $this->product;
     }
 
-    public function setUnit(string $unit): self
+    public function setProduct(?Product $product): self
     {
-        $this->unit = $unit;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Meal[]
-     */
-    public function getMeals(): Collection
-    {
-        return $this->meals;
-    }
-
-    public function addMeal(Meal $meal): self
-    {
-        if (!$this->meals->contains($meal)) {
-            $this->meals[] = $meal;
-            $meal->addIngredient($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMeal(Meal $meal): self
-    {
-        if ($this->meals->removeElement($meal)) {
-            $meal->removeIngredient($this);
-        }
+        $this->product = $product;
 
         return $this;
     }
