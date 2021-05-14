@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\IngredientRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 /**
  * @ORM\Entity(repositoryClass=IngredientRepository::class)
@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Ingredient
 {
     /**
+     * @Groups({"meal"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -20,15 +21,24 @@ class Ingredient
     private $id;
 
     /**
+     * @Groups({"meal"})
      * @ORM\Column(type="float")
      */
     private $quantity;
 
     /**
+     * @Groups({"meal"})
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="ingredients")
      * @ORM\JoinColumn(nullable=false)
      */
     private $product;
+
+    /**
+     * @Ignore()
+     * @ORM\ManyToOne(targetEntity=Meal::class, inversedBy="ingredients")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $meal;
 
     public function __construct()
     {
@@ -60,6 +70,18 @@ class Ingredient
     public function setProduct(?Product $product): self
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    public function getMeal(): ?Meal
+    {
+        return $this->meal;
+    }
+
+    public function setMeal(?Meal $meal): self
+    {
+        $this->meal = $meal;
 
         return $this;
     }

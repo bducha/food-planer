@@ -6,6 +6,7 @@ use App\Repository\MealRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MealRepository::class)
@@ -13,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Meal
 {
     /**
+     * @Groups({"meal"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -20,17 +22,20 @@ class Meal
     private $id;
 
     /**
+     * @Groups({"meal"})
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
+     * @Groups({"meal"})
      * @ORM\Column(type="integer")
      */
     private $quantity;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Ingredient::class, inversedBy="meals")
+     * @Groups({"meal"})
+     * @ORM\OneToMany(targetEntity=Ingredient::class, mappedBy="meal", orphanRemoval=true, cascade="persist")
      */
     private $ingredients;
 
@@ -80,6 +85,7 @@ class Meal
     {
         if (!$this->ingredients->contains($ingredient)) {
             $this->ingredients[] = $ingredient;
+            $ingredient->setMeal($this);
         }
 
         return $this;
@@ -87,7 +93,12 @@ class Meal
 
     public function removeIngredient(Ingredient $ingredient): self
     {
-        $this->ingredients->removeElement($ingredient);
+        if ($this->ingredients->removeElement($ingredient)) {
+            // set the owning side to null (unless already changed)
+            if ($ingredient->getMeal() === $this) {
+                $ingredient->setMeal(null);
+            }
+        }
 
         return $this;
     }
